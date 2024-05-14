@@ -14,6 +14,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
@@ -55,6 +57,9 @@ class MainActivity : AppCompatActivity() {
     private val tvResultBlr: TextView by lazy {
         findViewById(R.id.tvResultBlr)
     }
+    private val tvCourseBnb: TextView by lazy {
+        findViewById(R.id.tvCourseBnb)
+    }
     private val progressBar: ProgressBar by lazy {
         findViewById(R.id.progressBar)
     }
@@ -87,10 +92,12 @@ class MainActivity : AppCompatActivity() {
             progressBar.visibility = View.VISIBLE
             val jobUsd = async(Dispatchers.IO) { loadCourseUsdRBC() }
             val jobMir = async(Dispatchers.IO) { loadCourseMir() }
+            val jobBnb = async(Dispatchers.IO) { loadUsdFromBnb() }
 
             // Дождемся завершения обеих корутин
             jobUsd.await()
             jobMir.await()
+            jobBnb.await()
 
             progressBar.visibility = View.GONE
         }
@@ -118,6 +125,22 @@ class MainActivity : AppCompatActivity() {
             exchangePrice?.let {
                 Toast.makeText(this, "${if(it>0) "+" else ""}$it%", Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    private fun loadUsdFromBnb(){
+        try {
+            val doc: Document = Jsoup.connect("https://bnb.by/kursy-valyut/imbank/").get()
+            // Поиск input с классом jsConfig
+            val inputElement = doc.select("input.jsConfig").first()
+            // Получение значения value
+            val jsonStr = inputElement?.attr("value")
+            val course = JSONObject(jsonStr).getJSONObject("USD").getJSONObject("BYN").getString("SALE")
+
+            tvCourseBnb.text = course
+        }catch (e :Exception){
+            tvCourseBnb.text = "00.00"
+            println(e.message)
         }
     }
 

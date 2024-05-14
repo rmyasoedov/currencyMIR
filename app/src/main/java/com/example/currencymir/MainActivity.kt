@@ -1,14 +1,14 @@
 package com.example.currencymir
 
-import android.content.pm.PackageManager
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
-import com.android.volley.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -72,6 +72,8 @@ class MainActivity : AppCompatActivity() {
 
     private val limitBlr = 500F
 
+    private var exchangePrice: Float? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -83,7 +85,7 @@ class MainActivity : AppCompatActivity() {
 
         GlobalScope.launch(Dispatchers.Main) {
             progressBar.visibility = View.VISIBLE
-            val jobUsd = async(Dispatchers.IO) { loadCourseUsd() }
+            val jobUsd = async(Dispatchers.IO) { loadCourseUsdRBC() }
             val jobMir = async(Dispatchers.IO) { loadCourseMir() }
 
             // Дождемся завершения обеих корутин
@@ -110,10 +112,19 @@ class MainActivity : AppCompatActivity() {
         etInputRus.addTextChangedListener {
             tvResultBlr.text = getConvertBlr()
         }
+
+        tvCourseUsd.setOnClickListener {
+
+            exchangePrice?.let {
+                Toast.makeText(this, "${if(it>0) "+" else ""}$it%", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
 
-    private fun loadCourseUsd(){
+    @SuppressLint("SuspiciousIndentation")
+    private fun loadCourseUsdMediametrics(){
+        exchangePrice = null
             try {
                 val url = URL("https://mediametrics.ru/quotes/top/currency_out.js")
                 val br = BufferedReader(InputStreamReader(url.openStream()))
@@ -134,6 +145,25 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+    private fun loadCourseUsdRBC(){
+        try {
+            val jsonString = getJsonString("https://quote.rbc.ru/v5/ajax/get-updated-finance-data-of-tickers/?tickersIds=59111&addSessionData=1")
+            val jsonObject = JSONObject(jsonString).getJSONObject("59111")
+            val price = jsonObject.getString("price")
+            exchangePrice = try {
+                (jsonObject.getString("exchange_price_percent").toFloat()*100).roundToInt()/100F
+            }catch (_:Exception){
+                null
+            }
+
+            tvCourseUsd.text = price
+        }catch (e :Exception){
+            exchangePrice = null
+            tvCourseUsd.text = "00.00"
+            println(e.message)
+        }
+    }
+
     private fun tomorrowDate(): String {
         // Получение текущей даты
         val calendar = Calendar.getInstance()
@@ -149,9 +179,7 @@ class MainActivity : AppCompatActivity() {
         return formatter.format(tomorrow)
     }
 
-    private fun getLoadMir(): String{
-        val urlStr = "https://api-user.privetmir.ru/backend/api/v2/currencies/rates?cpd=${tomorrowDate()}"
-        println("url MIR: $urlStr")
+    private fun getJsonString(urlStr: String): String{
         val url = URL(urlStr)
         val connection = url.openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
@@ -182,7 +210,7 @@ class MainActivity : AppCompatActivity() {
     private fun loadCourseMir(){
             try {
 
-                val jsonString = getLoadMir()
+                val jsonString = getJsonString("https://api-user.privetmir.ru/backend/api/v2/currencies/rates?cpd=${tomorrowDate()}")
                 val jsonObject = JSONObject(jsonString)
 
                 val contentArray = jsonObject.getJSONArray("content")

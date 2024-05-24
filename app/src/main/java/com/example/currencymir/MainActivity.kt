@@ -1,14 +1,18 @@
 package com.example.currencymir
 
 import android.annotation.SuppressLint
+import android.app.DatePickerDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -39,8 +43,8 @@ class MainActivity : AppCompatActivity() {
     private val tvCourseMir: TextView by lazy {
         findViewById(R.id.tvCourseMir)
     }
-    private val tvUpdate: TextView by lazy {
-        findViewById(R.id.tvUpdate)
+    private val tvSetNbRb: TextView by lazy {
+        findViewById(R.id.tvSetNbRb)
     }
     private val tvCourse100: TextView by lazy {
         findViewById(R.id.tvCourse100)
@@ -60,6 +64,15 @@ class MainActivity : AppCompatActivity() {
     private val tvCourseBnb: TextView by lazy {
         findViewById(R.id.tvCourseBnb)
     }
+    private val tvCourseNbrb: TextView by lazy {
+        findViewById(R.id.tvCourseNbrb)
+    }
+    private val tvDateNbrb: TextView by lazy {
+        findViewById(R.id.tvDateNbrb)
+    }
+    private val tvResultBlrZp: TextView by lazy {
+        findViewById(R.id.tvResultBlrZp)
+    }
     private val progressBar: ProgressBar by lazy {
         findViewById(R.id.progressBar)
     }
@@ -68,6 +81,18 @@ class MainActivity : AppCompatActivity() {
     }
     private val etInputRus: EditText by lazy {
         findViewById(R.id.etInputRus)
+    }
+    private val etInputRusZp: EditText by lazy {
+        findViewById(R.id.etInputRusZp)
+    }
+    private val swRefresh: SwipeRefreshLayout by lazy {
+        findViewById(R.id.swRefresh)
+    }
+    private val nbrbBlock: ViewGroup by lazy {
+        findViewById(R.id.nbrbBlock)
+    }
+    private val blockInputNbRb: ViewGroup by lazy {
+        findViewById(R.id.blockInputNbRb)
     }
 
     private var courseMir: Float = 0F
@@ -78,12 +103,21 @@ class MainActivity : AppCompatActivity() {
     private val limitBlr = 500F
 
     private var exchangePrice: Float? = null
+    private var courseNbrb: Float? = null
+    private var dateCourseNbrb = todayDate()
+
+    private val BNB_LOADING = true
+    private var modeNbRb = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         tvVersion.text = "v${packageManager.getPackageInfo(packageName,0).versionName}"
+
+        if(!BNB_LOADING){
+            findViewById<ViewGroup>(R.id.bnbBlock).visibility = View.GONE
+        }
     }
 
     private fun update(){
@@ -92,12 +126,23 @@ class MainActivity : AppCompatActivity() {
             progressBar.visibility = View.VISIBLE
             val jobUsd = async(Dispatchers.IO) { loadCourseUsdRBC() }
             val jobMir = async(Dispatchers.IO) { loadCourseMir() }
-            val jobBnb = async(Dispatchers.IO) { loadUsdFromBnb() }
+
+            val jobBnb = if(BNB_LOADING){
+                async(Dispatchers.IO) { loadUsdFromBnb() }
+            }else {
+                null
+            }
+            val jobNbrb = if(modeNbRb){
+                async(Dispatchers.IO) { loadCourseNbrb(dateCourseNbrb) }
+            }else{
+                null
+            }
 
             // Дождемся завершения обеих корутин
             jobUsd.await()
             jobMir.await()
-            jobBnb.await()
+            jobBnb?.await()
+            jobNbrb?.await()
 
             progressBar.visibility = View.GONE
         }
@@ -108,8 +153,24 @@ class MainActivity : AppCompatActivity() {
 
         update()
 
-        tvUpdate.setOnClickListener {
+        swRefresh.setOnRefreshListener {
+            swRefresh.isRefreshing = false
             update()
+        }
+
+        tvSetNbRb.setOnClickListener {
+            if(modeNbRb) return@setOnClickListener
+
+            GlobalScope.launch(Dispatchers.Main) {
+                progressBar.visibility = View.VISIBLE
+                async(Dispatchers.IO) {loadCourseNbrb(dateCourseNbrb)}
+                nbrbBlock.visibility = View.VISIBLE
+                blockInputNbRb.visibility = View.VISIBLE
+                it.visibility = View.GONE
+                modeNbRb = true
+                progressBar.visibility = View.GONE
+            }
+
         }
 
         etInputBlr.addTextChangedListener {
@@ -120,11 +181,45 @@ class MainActivity : AppCompatActivity() {
             tvResultBlr.text = getConvertBlr()
         }
 
+        etInputRusZp.addTextChangedListener {
+            tvResultBlrZp.text = getConvertZp()
+        }
+
         tvCourseUsd.setOnClickListener {
 
             exchangePrice?.let {
                 Toast.makeText(this, "${if(it>0) "+" else ""}$it%", Toast.LENGTH_LONG).show()
             }
+        }
+
+        tvCourseNbrb.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
+
+            // Создание DatePickerDialog
+            val datePickerDialog = DatePickerDialog(
+                this,
+                { _, selectedYear, selectedMonth, selectedDayOfMonth ->
+                    // Обработка выбранной даты
+                    val selectedDate = "$selectedYear-${"%02d".format(selectedMonth + 1)}-${"%02d".format(selectedDayOfMonth)}"
+                    dateCourseNbrb = selectedDate
+                    GlobalScope.launch(Dispatchers.Main) {
+                        progressBar.visibility = View.VISIBLE
+                        async(Dispatchers.IO){
+                            loadCourseNbrb(selectedDate)
+                        }
+                        progressBar.visibility = View.GONE
+                    }
+                },
+                year,
+                month,
+                dayOfMonth
+            )
+
+            // Показать DatePickerDialog
+            datePickerDialog.show()
         }
     }
 
@@ -140,10 +235,23 @@ class MainActivity : AppCompatActivity() {
             tvCourseBnb.text = course
         }catch (e :Exception){
             tvCourseBnb.text = "00.00"
-            println(e.message)
         }
     }
 
+    private fun loadCourseNbrb(date: String){
+        try {
+            val jsonString = getJsonString("https://api.nbrb.by/exrates/rates/456?periodicity=0&ondate=$date")
+            courseNbrb = JSONObject(jsonString).getString("Cur_OfficialRate").toFloat()
+            tvCourseNbrb.text = courseNbrb.toString()
+            tvDateNbrb.text = "Курс НБ РБ на $date"
+            runOnUiThread{
+                tvResultBlrZp.text = getConvertZp()
+            }
+        }catch (e: Exception){
+            tvDateNbrb.text = "Курс НБ РБ на"
+            tvCourseNbrb.text = "0.0"
+        }
+    }
 
     @SuppressLint("SuspiciousIndentation")
     private fun loadCourseUsdMediametrics(){
@@ -185,6 +293,12 @@ class MainActivity : AppCompatActivity() {
             tvCourseUsd.text = "00.00"
             println(e.message)
         }
+    }
+
+    private fun todayDate(): String{
+        // Получение текущей даты
+        val todayDate = Calendar.getInstance().time
+        return SimpleDateFormat("yyyy-MM-dd").format(todayDate)
     }
 
     private fun tomorrowDate(): String {
@@ -321,5 +435,19 @@ class MainActivity : AppCompatActivity() {
         }else{
             "${((inputRus*courseMir*100).roundToInt()/100.0)} б.р"
         }
+    }
+
+    private fun getConvertZp(): String{
+        courseNbrb?.let {
+            try {
+                val inputValue = etInputRusZp.text.toString().toFloat()
+
+                val convertBlr = (inputValue*(it/100)*100).roundToInt()/100F
+                return "$convertBlr б.р"
+            }catch (_:Exception){
+                return "0.0 б.р"
+            }
+        }
+        return "0.0 б.р"
     }
 }

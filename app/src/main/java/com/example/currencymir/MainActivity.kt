@@ -278,8 +278,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadCourseUsdRBC(){
         try {
-            val jsonString = getJsonString("https://quote.rbc.ru/v5/ajax/get-updated-finance-data-of-tickers/?tickersIds=59111&addSessionData=1")
-            val jsonObject = JSONObject(jsonString).getJSONObject("59111")
+            val jsonString = getJsonString("https://quote.rbc.ru/v5/ajax/get-updated-finance-data-of-tickers/?tickersIds=353727&addSessionData=1")
+            val jsonObject = JSONObject(jsonString).getJSONObject("353727")
             val price = jsonObject.getString("price")
             exchangePrice = try {
                 (jsonObject.getString("exchange_price_percent").toFloat()*100).roundToInt()/100F

@@ -27,6 +27,10 @@ import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.stream.Collectors
+import javax.net.ssl.HttpsURLConnection
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
@@ -112,6 +116,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        ignoreSSL()
 
         tvVersion.text = "v${packageManager.getPackageInfo(packageName,0).versionName}"
 
@@ -223,6 +229,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun ignoreSSL() {
+        // Игнорирование SSL-ошибок
+        val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<java.security.cert.X509Certificate>, authType: String) {}
+            override fun checkServerTrusted(chain: Array<java.security.cert.X509Certificate>, authType: String) {}
+            override fun getAcceptedIssuers(): Array<java.security.cert.X509Certificate> = arrayOf()
+        })
+
+        val sslContext = SSLContext.getInstance("SSL")
+        sslContext.init(null, trustAllCerts, java.security.SecureRandom())
+        HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.socketFactory)
+        HttpsURLConnection.setDefaultHostnameVerifier { hostname, session -> true }
+    }
+
     private fun loadUsdFromBnb(){
         try {
             val doc: Document = Jsoup.connect("https://bnb.by/kursy-valyut/imbank/").get()
@@ -230,10 +250,12 @@ class MainActivity : AppCompatActivity() {
             val inputElement = doc.select("input.jsConfig").first()
             // Получение значения value
             val jsonStr = inputElement?.attr("value")
+            println("JSON:\n$jsonStr")
             val course = JSONObject(jsonStr).getJSONObject("USD").getJSONObject("BYN").getString("SALE")
 
             tvCourseBnb.text = course
         }catch (e :Exception){
+            println(e.message)
             tvCourseBnb.text = "00.00"
         }
     }

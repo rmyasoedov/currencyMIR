@@ -190,13 +190,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadUsdFromBnb(){
         try {
-            val doc: Document = Jsoup.connect("https://bnb.by/kursy-valyut/imbank/").get()
+            //https://bnb.by/o-lichnom/obsluzhivanie/obmen-valyut/
+            val doc: Document = Jsoup.connect("https://bnb.by/o-lichnom/obsluzhivanie/obmen-valyut/").get()
             // Поиск input с классом jsConfig
-            val inputElement = doc.select("input.jsConfig").first()
+            val inputElement = doc.select("#jsRatesSettings").first()
             // Получение значения value
-            val jsonStr = inputElement?.attr("value")
+            val jsonStr = inputElement?.attr("data-date")
             println("JSON:\n$jsonStr")
-            val course = JSONObject(jsonStr).getJSONObject("USD").getJSONObject("BYN").getString("SALE")
+            val course = JSONObject(jsonStr).getJSONObject("8").getJSONObject("32").getString("UF_SALE")
             runOnUiThread {
                 binding.tvCourseBnb.text = course
             }

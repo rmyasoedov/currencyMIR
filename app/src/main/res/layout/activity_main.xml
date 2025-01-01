@@ -40,6 +40,13 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
+                    <com.example.currencymir.custome.SkeletonView
+                        android:id="@+id/skeletonUsd"
+                        android:layout_width="130dp"
+                        android:layout_height="45dp"
+                        android:visibility="gone"
+                        android:layout_gravity="center"/>
+
                     <TextView
                         android:id="@+id/tvCourseUsd"
                         android:layout_width="match_parent"
@@ -50,6 +57,7 @@
                         android:gravity="center_horizontal"/>
 
                     <TextView
+                        android:id="@+id/tvUsdLabel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Курс доллара"
@@ -64,6 +72,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:orientation="vertical">
+
+                    <com.example.currencymir.custome.SkeletonView
+                        android:id="@+id/skeletonMir"
+                        android:layout_width="130dp"
+                        android:layout_height="45dp"
+                        android:visibility="gone"
+                        android:layout_gravity="center"/>
 
                     <TextView
                         android:id="@+id/tvCourseMir"
@@ -92,6 +107,13 @@
                     android:visibility="gone"
                     android:orientation="vertical">
 
+                    <com.example.currencymir.custome.SkeletonView
+                        android:id="@+id/skeletonNbrb"
+                        android:layout_width="130dp"
+                        android:layout_height="45dp"
+                        android:visibility="gone"
+                        android:layout_gravity="center"/>
+
                     <TextView
                         android:id="@+id/tvCourseNbrb"
                         android:layout_width="match_parent"
@@ -118,6 +140,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:orientation="vertical">
+
+                    <com.example.currencymir.custome.SkeletonView
+                        android:id="@+id/skeletonBnb"
+                        android:layout_width="130dp"
+                        android:layout_height="45dp"
+                        android:visibility="gone"
+                        android:layout_gravity="center"/>
 
                     <TextView
                         android:id="@+id/tvCourseBnb"
@@ -294,7 +323,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="100 RUB (1%)"
+                        android:text="100 RUB (0.5%)"
                         android:textColor="@color/white"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />

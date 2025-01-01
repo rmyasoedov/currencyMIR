@@ -1,27 +1,20 @@
 package com.example.currencymir
 
-import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.currencymir.custome.SkeletonView
 import com.example.currencymir.databinding.ActivityMainBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -31,7 +24,6 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.stream.Collectors
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
@@ -46,6 +38,7 @@ class MainActivity : AppCompatActivity() {
 
     private var courseMir: Float = 0F
     private var courseCommission: Float = 0F
+    private val comissionPrecent = 0.005F
 
     private val limitMonth = 50000F
 
@@ -71,31 +64,54 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadedData(skeletonView: SkeletonView, textView: TextView){
+        runOnUiThread {
+            skeletonView.isVisible = false
+            textView.isVisible = true
+        }
+    }
+
     private fun update(){
 
+        binding.tvCourseUsd.isVisible = false
+        binding.skeletonUsd.isVisible = true
+
+        binding.tvCourseMir.isVisible = false
+        binding.skeletonMir.isVisible = true
+
+        binding.tvCourseBnb.isVisible = false
+        binding.skeletonBnb.isVisible = true
+
+        binding.tvCourseNbrb.isVisible = false
+        binding.skeletonNbrb.isVisible = true
+
         lifecycleScope.launch {
-            binding.progressBar.visibility = View.VISIBLE
-            val jobUsd = async(Dispatchers.IO) { loadCourseUsdRBC() }
-            val jobMir = async(Dispatchers.IO) { loadCourseMir() }
+
+            val jobUsd = async(Dispatchers.IO) {
+                if(!loadUsdInvesting()) loadCourseUsdtRBC()
+                loadedData(binding.skeletonUsd, binding.tvCourseUsd)
+            }
+            val jobMir = async(Dispatchers.IO) {
+                loadCourseMir()
+                loadedData(binding.skeletonMir, binding.tvCourseMir)
+            }
 
             val jobBnb = if(BNB_LOADING){
-                async(Dispatchers.IO) { loadUsdFromBnb() }
+                async(Dispatchers.IO) {
+                    loadUsdFromBnb()
+                    loadedData(binding.skeletonBnb, binding.tvCourseBnb)
+                }
             }else {
                 null
             }
             val jobNbrb = if(modeNbRb){
-                async(Dispatchers.IO) { loadCourseNbrb(dateCourseNbrb) }
+                async(Dispatchers.IO) {
+                    loadCourseNbrb(dateCourseNbrb)
+                    loadedData(binding.skeletonNbrb, binding.tvCourseNbrb)
+                }
             }else{
                 null
             }
-
-            // Дождемся завершения обеих корутин
-            jobUsd.await()
-            jobMir.await()
-            jobBnb?.await()
-            jobNbrb?.await()
-
-            binding.progressBar.visibility = View.GONE
         }
     }
 
@@ -112,14 +128,18 @@ class MainActivity : AppCompatActivity() {
         binding.tvSetNbRb.setOnClickListener {
             if(modeNbRb) return@setOnClickListener
 
+            binding.tvCourseNbrb.isVisible = false
+            binding.skeletonNbrb.isVisible = true
+
             lifecycleScope.launch {
-                binding.progressBar.visibility = View.VISIBLE
-                async(Dispatchers.IO) {loadCourseNbrb(dateCourseNbrb)}.join()
+                async(Dispatchers.IO) {
+                    loadCourseNbrb(dateCourseNbrb)
+                    loadedData(binding.skeletonNbrb, binding.tvCourseNbrb)
+                }.join()
                 binding.nbrbBlock.visibility = View.VISIBLE
                 binding.blockInputNbRb.visibility = View.VISIBLE
                 it.visibility = View.GONE
                 modeNbRb = true
-                binding.progressBar.visibility = View.GONE
             }
 
         }
@@ -196,13 +216,16 @@ class MainActivity : AppCompatActivity() {
             val inputElement = doc.select("#jsRatesSettings").first()
             // Получение значения value
             val jsonStr = inputElement?.attr("data-date")
-            println("JSON:\n$jsonStr")
-            val course = JSONObject(jsonStr).getJSONObject("8").getJSONObject("32").getString("UF_SALE")
+            val courseObj = JSONObject(jsonStr).getJSONObject("8").getJSONObject("32")
+            val courseSale = courseObj.getString("UF_SALE")
+            val courseBuy = courseObj.getString("UF_BUY")
             runOnUiThread {
-                binding.tvCourseBnb.text = course
+                binding.tvCourseBnb.text = courseSale
+                binding.tvCourseBnb.setOnClickListener {
+                    Toast.makeText(this@MainActivity, courseBuy, Toast.LENGTH_LONG).show()
+                }
             }
         }catch (e :Exception){
-            println(e.message)
             runOnUiThread {
                 binding.tvCourseBnb.text = "00.00"
             }
@@ -226,7 +249,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadCourseUsdRBC(){
+    private fun loadUsdInvesting(): Boolean{
+        try {
+            val doc: Document = Jsoup.connect("https://www.investing.com/currencies/usd-rub").get()
+            val priceElement = doc.select("div[data-test=instrument-price-last]").first()
+            exchangePrice = try {
+                doc.select("span[data-test=instrument-price-change]").first().text().toFloat()
+            }catch (_:Exception){
+                null
+            }
+            runOnUiThread {
+                val price = (priceElement.text().toFloat()*100).roundToInt()/100F
+                binding.tvCourseUsd.text = price.toString()
+                setUsdLabel("Investing")
+            }
+        }catch (e :Exception){
+            return false
+        }
+        return true
+    }
+
+
+    private fun loadCourseUsdtRBC(): Boolean{
         try {
             val jsonString = getJsonString("https://quote.rbc.ru/v5/ajax/get-updated-finance-data-of-tickers/?tickersIds=353727&addSessionData=1")
             val jsonObject = JSONObject(jsonString).getJSONObject("353727")
@@ -239,14 +283,17 @@ class MainActivity : AppCompatActivity() {
 
             runOnUiThread {
                 binding.tvCourseUsd.text = price
+                setUsdLabel("RBC")
             }
         }catch (e :Exception){
             exchangePrice = null
             runOnUiThread {
                 binding.tvCourseUsd.text = "00.00"
             }
+            return false
             println(e.message)
         }
+        return true
     }
 
     private fun todayDate(): String{
@@ -326,7 +373,7 @@ class MainActivity : AppCompatActivity() {
                     courseMir = 1 / exchangeRateValue.toFloat()
                     val defaultSum = 50000
 
-                    courseCommission = ((defaultSum * courseMir) / (defaultSum * 1.01) * 100).toFloat()
+                    courseCommission = ((defaultSum * courseMir) / (defaultSum * (1 + comissionPrecent)) * 100)
 
                     val fix500 = 500 / courseMir
 
@@ -358,6 +405,10 @@ class MainActivity : AppCompatActivity() {
         }else{
             "${((inputBlr/courseMir*100).roundToInt()/100.0)} р.р"
         }
+    }
+
+    private fun setUsdLabel(source: String){
+        binding.tvUsdLabel.text = "Курс доллара ($source)"
     }
 
     private fun getConvertBlr(): String{

@@ -51,7 +51,7 @@
                         android:id="@+id/tvCourseUsd"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="36sp"
+                        android:textSize="@dimen/informer_text_size"
                         android:textColor="@color/white"
                         android:text="99.99"
                         android:gravity="center_horizontal"/>
@@ -84,7 +84,7 @@
                         android:id="@+id/tvCourseMir"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="36sp"
+                        android:textSize="@dimen/informer_text_size"
                         android:textColor="@color/white"
                         android:text="99.99"
                         android:gravity="center_horizontal"/>
@@ -118,7 +118,7 @@
                         android:id="@+id/tvCourseNbrb"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="36sp"
+                        android:textSize="@dimen/informer_text_size"
                         android:textColor="@color/white"
                         android:text="99.99"
                         android:gravity="center_horizontal"/>
@@ -152,7 +152,7 @@
                         android:id="@+id/tvCourseBnb"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="36sp"
+                        android:textSize="@dimen/informer_text_size"
                         android:textColor="@color/white"
                         android:text="99.99"
                         android:gravity="center_horizontal"/>
@@ -371,25 +371,13 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/tvSetNbRb"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:indeterminate="true"
-        android:indeterminateTintMode="src_atop"
-        android:indeterminateTint="@color/white"/>
-
     <TextView
         android:id="@+id/tvSetNbRb"
         android:layout_width="match_parent"
         android:layout_height="36dp"
         android:background="@color/white"
         android:gravity="center"
+        android:visibility="visible"
         android:text="Курс НБ РБ"
         android:textColor="@color/black"
         android:textSize="20sp"

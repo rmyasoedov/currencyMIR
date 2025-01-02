@@ -28,6 +28,7 @@ import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
@@ -82,8 +83,8 @@ class MainActivity : AppCompatActivity() {
         binding.tvCourseBnb.isVisible = false
         binding.skeletonBnb.isVisible = true
 
-        binding.tvCourseNbrb.isVisible = false
-        binding.skeletonNbrb.isVisible = true
+        binding.tvCourseNbrb?.isVisible = false
+        binding.skeletonNbrb?.isVisible = true
 
         lifecycleScope.launch {
 
@@ -107,7 +108,7 @@ class MainActivity : AppCompatActivity() {
             val jobNbrb = if(modeNbRb){
                 async(Dispatchers.IO) {
                     loadCourseNbrb(dateCourseNbrb)
-                    loadedData(binding.skeletonNbrb, binding.tvCourseNbrb)
+                    loadedData(binding.skeletonNbrb!!, binding.tvCourseNbrb!!)
                 }
             }else{
                 null
@@ -125,35 +126,35 @@ class MainActivity : AppCompatActivity() {
             update()
         }
 
-        binding.tvSetNbRb.setOnClickListener {
+        binding.tvSetNbRb?.setOnClickListener {
             if(modeNbRb) return@setOnClickListener
 
-            binding.tvCourseNbrb.isVisible = false
-            binding.skeletonNbrb.isVisible = true
+            binding.tvCourseNbrb?.isVisible = false
+            binding.skeletonNbrb?.isVisible = true
 
             lifecycleScope.launch {
                 async(Dispatchers.IO) {
                     loadCourseNbrb(dateCourseNbrb)
-                    loadedData(binding.skeletonNbrb, binding.tvCourseNbrb)
+                    loadedData(binding.skeletonNbrb!!, binding.tvCourseNbrb!!)
                 }.join()
-                binding.nbrbBlock.visibility = View.VISIBLE
-                binding.blockInputNbRb.visibility = View.VISIBLE
+                binding.nbrbBlock?.visibility = View.VISIBLE
+                binding.blockInputNbRb?.visibility = View.VISIBLE
                 it.visibility = View.GONE
                 modeNbRb = true
             }
 
         }
 
-        binding.etInputBlr.addTextChangedListener {
-            binding.tvResultRus.text = getConvertRus()
+        binding.etInputBlr?.addTextChangedListener {
+            binding.tvResultRus?.text = getConvertRus()
         }
 
-        binding.etInputRus.addTextChangedListener {
-            binding.tvResultBlr.text = getConvertBlr()
+        binding.etInputRus?.addTextChangedListener {
+            binding.tvResultBlr?.text = getConvertBlr()
         }
 
-        binding.etInputRusZp.addTextChangedListener {
-            binding.tvResultBlrZp.text = getConvertZp()
+        binding.etInputRusZp?.addTextChangedListener {
+            binding.tvResultBlrZp?.text = getConvertZp()
         }
 
         binding.tvCourseUsd.setOnClickListener {
@@ -163,7 +164,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.tvCourseNbrb.setOnClickListener {
+        binding.tvCourseNbrb?.setOnClickListener {
             val calendar = Calendar.getInstance()
             val year = calendar.get(Calendar.YEAR)
             val month = calendar.get(Calendar.MONTH)
@@ -177,11 +178,13 @@ class MainActivity : AppCompatActivity() {
                     val selectedDate = "$selectedYear-${"%02d".format(selectedMonth + 1)}-${"%02d".format(selectedDayOfMonth)}"
                     dateCourseNbrb = selectedDate
                     lifecycleScope.launch {
-                        binding.progressBar.visibility = View.VISIBLE
+                        binding.tvCourseNbrb?.isVisible = false
+                        binding.skeletonNbrb?.isVisible = true
                         async(Dispatchers.IO){
                             loadCourseNbrb(selectedDate)
+                            loadedData(binding.skeletonNbrb!!, binding.tvCourseNbrb!!)
                         }
-                        binding.progressBar.visibility = View.GONE
+
                     }
                 },
                 year,
@@ -237,14 +240,14 @@ class MainActivity : AppCompatActivity() {
             val jsonString = getJsonString("https://api.nbrb.by/exrates/rates/456?periodicity=0&ondate=$date")
             courseNbrb = JSONObject(jsonString).getString("Cur_OfficialRate").toFloat()
             runOnUiThread{
-                binding.tvCourseNbrb.text = courseNbrb.toString()
-                binding.tvDateNbrb.text = "Курс НБ РБ на $date"
-                binding.tvResultBlrZp.text = getConvertZp()
+                binding.tvCourseNbrb?.text = courseNbrb.toString()
+                binding.tvDateNbrb?.text = "Курс НБ РБ на $date"
+                binding.tvResultBlrZp?.text = getConvertZp()
             }
         }catch (e: Exception){
             runOnUiThread {
-                binding.tvDateNbrb.text = "Курс НБ РБ на"
-                binding.tvCourseNbrb.text = "0.0"
+                binding.tvDateNbrb?.text = "Курс НБ РБ на"
+                binding.tvCourseNbrb?.text = "0.0"
             }
         }
     }
@@ -374,16 +377,14 @@ class MainActivity : AppCompatActivity() {
                     val defaultSum = 50000
 
                     courseCommission = ((defaultSum * courseMir) / (defaultSum * (1 + comissionPrecent)) * 100)
-
-                    val fix500 = 500 / courseMir
+                    val fix500 = (500 / courseMir).fract(2)
 
                     val course100 = courseMir * 100
                     runOnUiThread {
-
-                        binding.tvResultRus.text = getConvertRus()
-                        binding.tvResultBlr.text = getConvertBlr()
-                        binding.tvCourse100.text = "$course100"
-                        binding.tvCourseCommission.text = "$courseCommission"
+                        binding.tvResultRus?.text = getConvertRus()
+                        binding.tvResultBlr?.text = getConvertBlr()
+                        binding.tvCourse100.text = "${course100.fract(4)}"
+                        binding.tvCourseCommission.text = "${courseCommission.fract(4)}"
                         binding.tv500br.text = "$fix500 б.р"
                     }
                 } ?: run {
@@ -397,7 +398,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getConvertRus(): String{
         val inputBlr: Float? = try {
-            binding.etInputBlr.text.toString().toFloat()
+            binding.etInputBlr?.text.toString().toFloat()
         }catch (_:Exception){null}
 
         return if(inputBlr==null){
@@ -407,13 +408,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun Float.fract(n: Int): Float{
+        if(n<=0) return this
+        val factor = 10f.pow(n)
+        return (this * factor).roundToInt() / factor
+    }
+
     private fun setUsdLabel(source: String){
         binding.tvUsdLabel.text = "Курс доллара ($source)"
     }
 
     private fun getConvertBlr(): String{
         val inputRus: Float? = try {
-            binding.etInputRus.text.toString().toFloat()
+            binding.etInputRus?.text.toString().toFloat()
         }catch (_:Exception){null}
 
         return if(inputRus==null){
@@ -426,7 +433,7 @@ class MainActivity : AppCompatActivity() {
     private fun getConvertZp(): String{
         courseNbrb?.let {
             try {
-                val inputValue = binding.etInputRusZp.text.toString().toFloat()
+                val inputValue = binding.etInputRusZp?.text.toString().toFloat()
 
                 val convertBlr = (inputValue*(it/100)*100).roundToInt()/100F
                 return "$convertBlr б.р"

@@ -1,4 +1,4 @@
-package com.example.currencymir.custome
+package com.example.currencymir.presentation.ui.custome
 
 import android.animation.ObjectAnimator
 import android.content.Context

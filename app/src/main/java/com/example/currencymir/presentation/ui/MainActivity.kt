@@ -1,4 +1,4 @@
-package com.example.currencymir
+package com.example.currencymir.presentation.ui
 
 import android.app.DatePickerDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -10,7 +10,8 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
-import com.example.currencymir.custome.SkeletonView
+import com.example.currencymir.R
+import com.example.currencymir.presentation.ui.custome.SkeletonView
 import com.example.currencymir.databinding.ActivityMainBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async

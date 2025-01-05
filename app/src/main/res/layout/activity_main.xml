@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/default_color"
-    tools:context=".MainActivity">
+    tools:context=".presentation.ui.MainActivity">
 
     <TextView
         android:id="@+id/tvVersion"
@@ -40,7 +40,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <com.example.currencymir.custome.SkeletonView
+                    <com.example.currencymir.presentation.ui.custome.SkeletonView
                         android:id="@+id/skeletonUsd"
                         android:layout_width="130dp"
                         android:layout_height="45dp"
@@ -73,7 +73,7 @@
                     android:layout_marginTop="10dp"
                     android:orientation="vertical">
 
-                    <com.example.currencymir.custome.SkeletonView
+                    <com.example.currencymir.presentation.ui.custome.SkeletonView
                         android:id="@+id/skeletonMir"
                         android:layout_width="130dp"
                         android:layout_height="45dp"
@@ -107,7 +107,7 @@
                     android:visibility="gone"
                     android:orientation="vertical">
 
-                    <com.example.currencymir.custome.SkeletonView
+                    <com.example.currencymir.presentation.ui.custome.SkeletonView
                         android:id="@+id/skeletonNbrb"
                         android:layout_width="130dp"
                         android:layout_height="45dp"
@@ -141,7 +141,7 @@
                     android:layout_marginTop="10dp"
                     android:orientation="vertical">
 
-                    <com.example.currencymir.custome.SkeletonView
+                    <com.example.currencymir.presentation.ui.custome.SkeletonView
                         android:id="@+id/skeletonBnb"
                         android:layout_width="130dp"
                         android:layout_height="45dp"

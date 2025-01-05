@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -11,8 +12,8 @@ android {
         applicationId "com.example.currencymir"
         minSdk 24
         targetSdk 34
-        versionCode 104
-        versionName "1.04"
+        versionCode 105
+        versionName "1.05"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -63,4 +64,30 @@ dependencies {
 
     //parser
     implementation 'org.jsoup:jsoup:1.13.1'
+
+    //viewmodel
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.4'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.4'
+    implementation "androidx.fragment:fragment-ktx:1.8.2" //viewModels for Fragment
+
+    //dagger
+    implementation 'com.google.dagger:dagger:2.52'
+    kapt 'com.google.dagger:dagger-compiler:2.52'
+
+    //implementation 'javax.inject:javax.inject:1'
+
+    // Kotlin extensions
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:2.0.10"
+
+    // retrofit
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+    implementation "com.squareup.okhttp3:logging-interceptor:4.9.0"
+
+    implementation("com.squareup.retrofit2:retrofit:2.5.0") {
+        // exclude Retrofit’s OkHttp peer-dependency module and define your own module import
+        exclude module: 'okhttp'
+    }
+    implementation "com.squareup.retrofit2:converter-gson:2.5.0"
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
 }

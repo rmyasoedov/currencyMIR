@@ -1,9 +1,10 @@
-package com.example.currencymir
+package com.example.currencymir.presentation.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.currencymir.R
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {

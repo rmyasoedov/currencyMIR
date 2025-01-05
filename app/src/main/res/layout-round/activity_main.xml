@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/default_color"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/tvVersion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="v1.0"
+        android:textColor="@color/white"
+        android:textSize="10sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:padding="@dimen/default_indent"
+        android:layout_marginBottom="@dimen/default_indent">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.example.currencymir.custome.SkeletonView
+                        android:id="@+id/skeletonUsd"
+                        android:layout_width="130dp"
+                        android:layout_height="45dp"
+                        android:visibility="gone"
+                        android:layout_gravity="center"/>
+
+                    <TextView
+                        android:id="@+id/tvCourseUsd"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/informer_text_size"
+                        android:textColor="@color/white"
+                        android:text="99.99"
+                        android:gravity="center_horizontal"/>
+
+                    <TextView
+                        android:id="@+id/tvUsdLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Курс доллара"
+                        android:textColor="@color/white"
+                        android:gravity="center_horizontal"
+                        android:textSize="10sp"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical">
+
+                    <com.example.currencymir.custome.SkeletonView
+                        android:id="@+id/skeletonMir"
+                        android:layout_width="130dp"
+                        android:layout_height="45dp"
+                        android:visibility="gone"
+                        android:layout_gravity="center"/>
+
+                    <TextView
+                        android:id="@+id/tvCourseMir"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/informer_text_size"
+                        android:textColor="@color/white"
+                        android:text="99.99"
+                        android:gravity="center_horizontal"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Курс МИР (BYN)"
+                        android:textColor="@color/white"
+                        android:gravity="center_horizontal"
+                        android:textSize="10sp"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/bnbBlock"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical">
+
+                    <com.example.currencymir.custome.SkeletonView
+                        android:id="@+id/skeletonBnb"
+                        android:layout_width="130dp"
+                        android:layout_height="45dp"
+                        android:visibility="gone"
+                        android:layout_gravity="center"/>
+
+                    <TextView
+                        android:id="@+id/tvCourseBnb"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/informer_text_size"
+                        android:textColor="@color/white"
+                        android:text="99.99"
+                        android:gravity="center_horizontal"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="БНБ (курс доллара)"
+                        android:textColor="@color/white"
+                        android:gravity="center_horizontal"
+                        android:textSize="10sp"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <TextView
+                        android:id="@+id/textView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="100 RUB"
+                        android:textColor="@color/white"
+                        android:layout_marginEnd="6dp"/>
+
+                    <TextView
+                        android:id="@+id/tvCourse100"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="00.00"
+                        android:layout_marginStart="6dp"
+                        android:textSize="16sp"
+                        android:textColor="@color/white"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="100 RUB (0.5%)"
+                        android:textColor="@color/white"
+                        android:layout_marginEnd="6dp"/>
+
+                    <TextView
+                        android:id="@+id/tvCourseCommission"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="00.00"
+                        android:textSize="16sp"
+                        android:layout_marginStart="6dp"
+                        android:textColor="@color/white" />
+
+                </LinearLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent">
+
+                        <TextView
+                            android:id="@+id/tv500brs"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="500 б.р"
+                            android:textColor="@color/white" />
+
+                        <View
+                            android:id="@+id/middle500"
+                            android:layout_width="12dp"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:id="@+id/tv500br"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="00.00"
+                            android:textSize="16sp"
+                            android:textColor="@color/white" />
+
+
+                    </LinearLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

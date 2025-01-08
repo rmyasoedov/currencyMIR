@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace 'com.example.currencymir'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.example.currencymir"
@@ -46,7 +46,7 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.core:core-ktx:1.15.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.10.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -75,19 +75,12 @@ dependencies {
     implementation 'com.google.dagger:dagger:2.52'
     kapt 'com.google.dagger:dagger-compiler:2.52'
 
-    //implementation 'javax.inject:javax.inject:1'
+    implementation 'javax.inject:javax.inject:1'
 
     // Kotlin extensions
     implementation "org.jetbrains.kotlin:kotlin-stdlib:2.0.10"
 
-    // retrofit
-    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
-    implementation "com.squareup.okhttp3:logging-interceptor:4.9.0"
-
-    implementation("com.squareup.retrofit2:retrofit:2.5.0") {
-        // exclude Retrofit’s OkHttp peer-dependency module and define your own module import
-        exclude module: 'okhttp'
-    }
-    implementation "com.squareup.retrofit2:converter-gson:2.5.0"
-    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+    implementation project(path: ':data')
+    implementation project(path: ':domain')
+    implementation project(path: ':utils')
 }

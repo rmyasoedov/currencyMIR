@@ -64,13 +64,16 @@ class RetrofitRepositoryImpl @Inject constructor(
         val result = MyResponse.getResponse(netBnbApi.getCourseBnb())
 
         if(result.code!=200){
+            println("error")
             response.error = true
             response.code = result.code
             response.errorMessage = "code: ${result.code}. ${result.errorUtf8}"
         }else{
+            println("not")
             response.body = networkMapper.mapToCourseBnb(result.body.toString())
         }
 
+        println(response.body.toString())
         return response
     }
 

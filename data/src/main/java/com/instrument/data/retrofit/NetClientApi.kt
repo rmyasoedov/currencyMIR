@@ -27,7 +27,7 @@ interface NetBnbApi {
     @Headers(
         "Cache-Control: no-cache",
     )
-    @GET("/o-lichnom/obsluzhivanie/obmen-valyut/")
+    @GET("/local/templates/itachMain/includes/ajax/getNewMoney.php?currentValue=1&currentCurrency=usd&saleCurrencyCode=BYN&buyCurrencyCode=USD&currentType=8")
     fun getCourseBnb(): Call<String>
 }
 

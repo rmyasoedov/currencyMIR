@@ -115,21 +115,19 @@ class NetworkMapper {
 
     }
 
-    fun mapToCourseBnb(htmlString: String): CourseBnbModel{
+    fun mapToCourseBnb(jsonString: String): CourseBnbModel{
 
         try {
-            val inputElement = Jsoup.parse(htmlString).select("#jsRatesSettings").first()
-            // Получение значения value
-            val jsonStr = inputElement?.attr("data-date")
-            val courseObj = JSONObject(jsonStr).getJSONObject("8").getJSONObject("32")
-            val courseSale = courseObj.getString("UF_SALE").toFloatOrNull()
-            val courseBuy = courseObj.getString("UF_BUY").toFloatOrNull()
+            val courseObj = JSONObject(jsonString)
+            val courseSale = courseObj.getString("bestCurr").toFloatOrNull()
+            val courseBuy =  0f
 
             return CourseBnbModel(
                 sale = courseSale,
                 buy = courseBuy
             )
         }catch (e: Exception){
+            println("err: ${e.message}")
             return CourseBnbModel()
         }
     }

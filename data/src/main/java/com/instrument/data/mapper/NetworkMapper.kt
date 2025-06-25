@@ -127,7 +127,6 @@ class NetworkMapper {
                 buy = courseBuy
             )
         }catch (e: Exception){
-            println("err: ${e.message}")
             return CourseBnbModel()
         }
     }
